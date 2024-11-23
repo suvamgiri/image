@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .image-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 300px;
+            text-align: center;
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        // Array containing image URLs
+        const imageUrls = [
+            "./image/a.jpg",
+            "./image/b.jpg",
+            "./image/b.jpg",
+            "./image/f.jpg",
+            "./image/e.jpg",
+            "./image/f.jpg",
+            "./image/g.jpg",
+            "./image/h.jpg",
+            "./image/i.jpg",
+            "./image/j.jpg",
+            "./image/k.jpg",
+            "./image/l.jpg",
+            "./image/m.jpg",
+            "./image/n.jpg",
+            "./image/o.jpg",
+            "./image/p.jpg",
+            "./image/r.png"
+        ];
+
+        // Get the body element
+        const body = document.body;
+
+        // Loop through the array and create elements dynamically
+        imageUrls.forEach((url, index) => {
+            // Create a container for each image
+            const container = document.createElement('div');
+            container.className = 'image-container';
+
+            // Create the image element
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = `Image ${index + 1}`;
+
+            // Create the description paragraph
+            const description = document.createElement('p');
+            description.textContent = `Sample Image ${index + 1}`;
+
+            // Append the image and description to the container
+            container.appendChild(img);
+            container.appendChild(description);
+
+            // Append the container to the body
+            body.appendChild(container);
+        });
+    </script>
+</body>
+
+</html>
