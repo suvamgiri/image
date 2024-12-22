@@ -4,81 +4,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Website</title>
+    <title>Grid Number Combine Game</title>
     <style>
+        /* styles.css */
+        /* styles.css */
+        
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e38c3c;
         }
         
-        .image-container {
-            border: 1px solid #ccc;
-            padding: 10px;
-            width: 300px;
+        #game-container {
+            width: 90%;
+            max-width: 400px;
             text-align: center;
         }
         
-        .image-container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 5px;
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .header-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        #time-left {
+            font-size: 18px;
+            color: #333;
+        }
+        
+        #total-score {
+            font-size: 40px;
+            color: #333;
+            margin: 10px 0;
+        }
+        
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+        
+        #game-grid {
+            display: grid;
+            border-radius: 20px;
+            border: 20px solid #ad4d11;
+            grid-template-columns: repeat(4, 1fr);
+            /* 4x4 grid */
+            gap: 6px;
+            padding: 10px;
+            background-color: #73340b;
+            margin: 20px 0;
+        }
+        
+        button.grid-button {
+            width: 100%;
+            aspect-ratio: 1;
+            background-color: #d48036;
+            border: 2px solid #ccc;
+            border-radius: 20px;
+            /* Circular buttons */
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        footer {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        
+        .footer-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        button.grid-button {
+            background-color: #d48036;
+            border: none;
+            font-size: 18px;
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        button.grid-button.selected {
+            background-color: #ff6961;
+            /* Highlight selected buttons */
+        }
+        
+        .game-board {
+            background-color: #73340b;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            width: 300px;
+        }
+        
+        .back-button {
+            background-color: #8b4f1e;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+        
+        .back-button i {
+            margin-right: 5px;
+        }
+        
+        .game-info {
+            background-color: #8b4f1e;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .game-info h2 {
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .game-info p {
+            color: white;
+            margin: 0;
+        }
+        
+        .game-info .timer {
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .timer i {
+            font-size: 18px;
+        }
+        
+        .game-info .timer span {
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        
+        .level {
+            background-color: #8b4f1e;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .level h3 {
+            color: white;
+            margin: 0;
+        }
+        
+        .leaf-pattern {
+            background-image: url('path/to/leaf-pattern.png');
+            /* Replace with actual image path */
+            background-size: cover;
+            height: 100px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .timer-display {
+            background-color: #8b4f1e;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .half-circle {
+            width: 200px;
+            height: 100px;
+            border: 1px solid #d58433;
+            background-color: #421e06;
+            border-bottom-left-radius: 100px;
+            border-bottom-right-radius: 100px;
+            margin-left: 86px;
+        }
+        
+        .beautiful-frame {
+            width: 300px;
+            height: 300px;
+            background: #f4f4f9;
+            border-radius: 20px;
+            border: 5px solid #3498db;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
         }
     </style>
 </head>
 
 <body>
+
+
+
+
+
+
+    <div id="game-container">
+
+        <div class="half-circle">
+            <p id="last-combined" style="color: white; font-size: 30px;">0</p>
+        </div>
+
+
+
+
+        <div id="game-grid" style="background-color: #73340b;"></div>
+    </div>
     <script>
-        // Array containing image URLs
-        const imageUrls = [
-            "https://github.com/suvamgiri/image/blob/main/image/a.jpg",
-            "./image/b.jpg",
-            "./image/b.jpg",
-            "./image/f.jpg",
-            "./image/e.jpg",
-            "./image/f.jpg",
-            "./image/g.jpg",
-            "./image/h.jpg",
-            "./image/i.jpg",
-            "./image/j.jpg",
-            "./image/k.jpg",
-            "./image/l.jpg",
-            "./image/m.jpg",
-            "./image/n.jpg",
-            "./image/o.jpg",
-            "./image/p.jpg",
-            "./image/r.png"
-        ];
+        // script.js
 
-        // Get the body element
-        const body = document.body;
 
-        // Loop through the array and create elements dynamically
-        imageUrls.forEach((url, index) => {
-            // Create a container for each image
-            const container = document.createElement('div');
-            container.className = 'image-container';
+        const gridSize = 4; // 4x4 grid
+        const gameGrid = document.getElementById("game-grid");
+        const lastCombined = document.getElementById("last-combined");
 
-            // Create the image element
-            const img = document.createElement('img');
-            img.src = url;
-            img.alt = `Image ${index + 1}`;
+        let selectedButtons = []; // Track selected buttons
 
-            // Create the description paragraph
-            const description = document.createElement('p');
-            description.textContent = `Sample Image ${index + 1}`;
+        // Initialize the game
+        function initializeGame() {
+            // Create the grid buttons
 
-            // Append the image and description to the container
-            container.appendChild(img);
-            container.appendChild(description);
 
-            // Append the container to the body
-            body.appendChild(container);
-        });
+
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    const button = document.createElement("button");
+                    button.classList.add("grid-button");
+                    button.textContent = "1"; // Default value for all buttons
+                    button.addEventListener("click", () => handleButtonClick(button));
+                    gameGrid.appendChild(button);
+                }
+            }
+        }
+
+        // Handle button click
+        function handleButtonClick(button) {
+            if (selectedButtons.length < 2 && !selectedButtons.includes(button)) {
+                selectedButtons.push(button);
+                button.classList.add("selected");
+            }
+
+            if (selectedButtons.length === 2) {
+                combineNumbers();
+            }
+        }
+
+        // Combine the numbers on the selected buttons
+        function combineNumbers() {
+            const number1 = parseInt(selectedButtons[0].textContent);
+            const number2 = parseInt(selectedButtons[1].textContent);
+
+            if (number1 === number2) {
+                const newNumber = number1 + number2;
+
+                // Update the first button with the new number
+                selectedButtons[0].textContent = newNumber;
+
+                // Update the "Last Combined" label
+                lastCombined.textContent = ` ${newNumber}`;
+            }
+
+            // Reset the buttons
+            selectedButtons.forEach((button) => button.classList.remove("selected"));
+            selectedButtons = [];
+        }
+
+        // Run the game initialization
+        initializeGame();
     </script>
 </body>
 
