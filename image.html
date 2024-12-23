@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Image Enhancer UI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #141E30, #243B55);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+        
+        #downloadBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: #3DB2FF;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease;
+        }
+        
+        #downloadBtn:hover {
+            background: #1B98F5;
+        }
+        
+        .image-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 350px;
+            height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        canvas {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 400px;
+            height: 200px;
+            background: #1E293B;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #E2E8F0;
+        }
+        
+        input[type="range"] {
+            width: 60%;
+            appearance: none;
+            height: 4px;
+            background: #3B82F6;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            justify-content: center;
+            background: #1E293B;
+            padding: 10px;
+            border-radius: 16px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .navigation ul {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .navigation ul li {
+            list-style: none;
+        }
+        
+        .navigation ul li a {
+            text-align: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .navigation ul li a .icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 5px;
+        }
+        
+        .navigation ul li a img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .navbar {
+            display: flex;
+            width: 86%;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+
+        <button id="downloadBtn">Export</button>
+    </div>
+    <div class="image-container">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+        <label>
+            Brightness:
+            <input type="range" id="brightness" min="0" max="200" value="100">
+        </label>
+        <label>
+            Contrast:
+            <input type="range" id="contrast" min="0" max="200" value="100">
+        </label>
+        <label>
+            Saturation:
+            <input type="range" id="saturation" min="0" max="200" value="100">
+        </label>
+    </div>
+
+    <div class="navigation">
+        <ul>
+            <li>
+                <a href="#" onclick="buttonAction()">
+                    <div class="icon">
+                        <img src="hel.png" alt="Photos">
+                    </div>
+                    <span>Photos</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*">
+
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const brightnessSlider = document.getElementById('brightness');
+        const contrastSlider = document.getElementById('contrast');
+        const saturationSlider = document.getElementById('saturation');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let img = new Image(); // To store the uploaded image
+
+        // Handle file upload
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Draw image on canvas after loading
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            applyFilters();
+        };
+
+        // Apply filters and redraw the image
+        const applyFilters = () => {
+            const brightness = brightnessSlider.value;
+            const contrast = contrastSlider.value;
+            const saturation = saturationSlider.value;
+
+            ctx.filter = `
+    brightness(${brightness}%)
+    contrast(${contrast}%)
+    saturate(${saturation}%)
+  `;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+
+        // Attach event listeners to sliders
+        brightnessSlider.addEventListener('input', applyFilters);
+        contrastSlider.addEventListener('input', applyFilters);
+        saturationSlider.addEventListener('input', applyFilters);
+
+        // Handle image download
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'enhanced-image.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+
+        function buttonAction() {
+            document.getElementById('fileInput').click();
+        }
+    </script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+
+</html>
