@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Master</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+            text-align: center;
+        }
+        .logo {
+            width: 50px;
+        }
+        .search-bar {
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        .search-input {
+            border-radius: 50px;
+            padding: 10px;
+            width: 100%;
+            max-width: 500px;
+            border: none;
+            outline: none;
+        }
+
+        @media (max-width: 800px) {
+
+            .search-input {
+            border-radius: 50px;
+            padding: 10px;
+            width: 68%;
+            max-width: 500px;
+            border: none;
+            outline: none;
+        }
+            
+        }
+        .search-btn {
+            background-color: cornflowerblue;
+     border-radius: 20px;
+     padding: 10px;
+     width: 100px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .buttons {
+           
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .buttons .btn {
+            border: 1px solid white;
+            border-radius: 20px;
+            color: white;
+            padding: 10px 15px;
+            flex: 1;
+            min-width: 120px;
+        }
+        .buttons .btn:hover {
+            background-color: white;
+            color: black;
+        }
+        .bike-details {
+            background: white;
+            padding: 20px;
+            color: black;
+            margin-top: 30px;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    #selected{
+
+        margin-top: 10px;
+    }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="account.png" alt="Logo" class="logo">
+        <h1>Account Master</h1>
+        <p>Account final account with modern and traditional</p>
+    
+        <div class="d-flex justify-content-center flex-wrap">
+            <button class="btn btn-light mx-2" onclick="showTraditionalBikes()">Traditional</button>
+            <button class="btn btn-light mx-2" onclick="showModernBikes()">Modern</button>
+        </div>
+    
+        <div class="search-bar">
+            <input type="text" id="search-bar" class="search-input" placeholder="Search...">
+            <button class="search-btn" onclick="search()">Search</button>
+        </div>
+       <span id="selected" style="margin-top:20px;"> No selected</span>
+        <div id="noResult" class="no-result"></div> <!-- Add a no result element -->
+        
+        <div id="bike-details" class="bike-details">
+            <h3 id="bike-name">Click a bike to see details</h3>
+            <p><strong>Group:</strong> <span id="bike-brand">-</span></p>
+            <p><strong>position:</strong> <span id="bike-engine">-</span></p>
+            <p><strong>category:</strong> <span id="bike-price">-</span></p>
+            <p><strong>Example:</strong> <span id="bike-example">-</span></p>
+
+        </div>
+    
+        <div class="buttons" id="buttons">
+            <!-- Bike buttons will be dynamically added here -->
+        </div>
+    </div>
+    
+    <script>
+        const container = document.getElementById("buttons");
+        const detailsDiv = document.getElementById("bike-details");
+        const searchbar = document.getElementById("search-bar");
+        const selected = document.getElementById("selected");
+        let isModernActive = false; 
+        let  isTraditionalActive=  true;
+
+        window.onload = function() {
+    showTraditionalBikes();
+};
+
+        const bikes = {
+            "Opening Stock": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "The value of stock at the beginning of the accounting period.",
+        example: "The value of stock at the start of the accounting period.",
+        category: "Asset",
+        applicableYear: "For the current accounting year"
+    },
+    "Purchases": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "The cost of goods bought for resale during the accounting period.",
+        example: "The value of goods purchased during the accounting period.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Direct Expenses": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Expenses directly incurred in the production of goods or services.",
+        example: "Expenses like wages, power and fuel, etc.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Sales": {
+        group: "Trading Account",
+        position: "Credit Side",
+        description: "Revenue generated from the sale of goods or services during the accounting period.",
+        example: "Total value of goods sold during the period.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Sales Returns (Return Inward)": {
+        group: "Trading Account",
+        position: "Debit Side (Deducted from Sales)",
+        description: "Goods returned by customers to the business.",
+        example: "If customers return $2,000 worth of goods, it reduces the sales figure.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Carriage Inward": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "The cost of transporting goods purchased to the business location.",
+        example: "If transporting goods costs $500, it is recorded as carriage inward.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Closing Stock": {
+        group: "Trading Account",
+        position: "Credit Side",
+        balanceSheet: "Current Asset",
+        description: "The value of stock remaining unsold at the end of the accounting period.",
+        example: "If the remaining stock is worth $8,000 at the end of the year, it is closing stock.",
+        category: "Asset",
+        applicableYear: "For the current accounting year"
+    },
+    "Purchase Returns (Return Outward)": {
+        group: "Trading Account",
+        position: "Credit Side (Deducted from Purchases)",
+        description: "Goods returned to suppliers by the business.",
+        example: "If goods purchased worth $1,000 are returned to the supplier, it reduces the purchase amount.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Gross Profit": {
+        group: "Trading Account",
+        position: "Credit Side (Calculated)",
+        description: "The difference between sales and the cost of goods sold (COGS).",
+        example: "Gross profit is calculated as: Sales - (Opening Stock + Purchases + Direct Expenses - Closing Stock).",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Cost of Goods Sold (COGS)": {
+        group: "Trading Account",
+        position: "Debit Side (Calculated)",
+        description: "The direct costs attributable to the production of goods sold during the period.",
+        example: "Calculated as Opening Stock + Purchases + Direct Expenses - Closing Stock.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Wages": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Labor costs directly related to production activities.",
+        example: "Wages paid to employees working in production.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Power and Fuel": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Costs of electricity, gas, and other fuels used for production.",
+        example: "Electricity charges for factory equipment.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Freight Inward": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "The cost of transporting goods purchased from suppliers.",
+        example: "Freight charges on goods received from suppliers.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Factory Overheads": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Indirect costs associated with the production process.",
+        example: "Costs like factory rent, maintenance, etc.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Raw Materials": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "The cost of basic materials used in the manufacturing process.",
+        example: "Raw materials used in the production of goods sold.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Work in Progress": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "The value of unfinished goods during the accounting period.",
+        example: "Goods that are in production but not yet completed.",
+        category: "Asset",
+        applicableYear: "For the current accounting year"
+    },
+    "Finished Goods": {
+        group: "Trading Account",
+        position: "Credit Side",
+        description: "The value of completed goods ready for sale at the end of the period.",
+        example: "Completed goods that are ready for sale but not yet sold.",
+        category: "Asset",
+        applicableYear: "For the current accounting year"
+    },
+    "Opening Goods in Transit": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Goods that were purchased but not yet received at the beginning of the accounting period.",
+        example: "Goods in transit at the start of the accounting period.",
+        category: "Asset",
+        applicableYear: "For the current accounting year"
+    },
+    "Closing Goods in Transit": {
+        group: "Trading Account",
+        position: "Credit Side",
+        description: "Goods purchased but not yet received at the end of the accounting period.",
+        example: "Goods in transit at the end of the accounting period.",
+        category: "Asset",
+        applicableYear: "For the current accounting year"
+    },
+    "Advertising and Promotion": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Costs incurred for promoting products or services.",
+        example: "Expenses related to advertising, such as print ads and digital campaigns.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Insurance (Factory and Goods)": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Insurance premiums paid for factory and goods.",
+        example: "Insurance cost for the factory and stock of goods.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Import Duties and Taxes": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Taxes and duties paid on imported goods.",
+        example: "Duties paid when importing raw materials.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Legal and Consultancy Fees": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Consultancy fees and legal expenses related to the business.",
+        example: "Legal fees related to business contracts or disputes.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Packaging Materials": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Cost of materials used for packaging products.",
+        example: "Materials like boxes, wrappers, and labels used for packaging.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Export Subsidy": {
+        group: "Trading Account",
+        position: "Credit Side",
+        description: "Government subsidies provided for exports.",
+        example: "Subsidies or rebates for goods exported.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Customs Duty": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Duty paid on goods imported.",
+        example: "Tax paid to customs for goods imported for resale.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Depreciation of Machinery": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "The cost allocated for the wear and tear of machinery used in production.",
+        example: "Depreciation on machinery used in manufacturing goods.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Bad Debts": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Amounts of receivables that are unlikely to be recovered.",
+        example: "If a customer’s debt is irrecoverable, it is recorded as bad debt.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Interest on Loans": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Interest paid on business loans used for operational purposes.",
+        example: "Interest expenses on loans taken to fund operations.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Bank Charges": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Fees charged by the bank for handling the business's accounts.",
+        example: "Bank fees like charges for maintaining an account.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Discount Allowed": {
+        group: "Trading Account",
+        position: "Debit Side",
+        description: "Discount given to customers on sales transactions.",
+        example: "The amount of discount given to customers for early payment.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Discount Received": {
+        group: "Trading Account",
+        position: "Credit Side",
+        description: "Discount received from suppliers on purchases.",
+        example: "Discounts offered by suppliers when paying for purchased goods.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Interest on Capital": {
+        group: "Trading Account",
+        position: "Credit Side",
+        description: "Interest earned on business capital invested in the company.",
+        example: "The business earns interest on its invested capital.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Profit on Sale of Assets": {
+        group: "Trading Account",
+        position: "Credit Side",
+        description: "Profit made from selling business assets.",
+        example: "If a company sells equipment for more than its book value, the profit is recorded here.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Commission Received": {
+        group: "Trading Account",
+        position: "Credit Side",
+        description: "Income from commission on sales or services provided.",
+        example: "Commission earned for selling products or services.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Trade Discounts": {
+        group: "Trading Account",
+        position: "Credit Side",
+        description: "Discounts given to customers based on the volume of sales.",
+        example: "Discounts given to customers on bulk purchases.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Rent Income": {
+        group: "Trading Account",
+        position: "Credit Side",
+        description: "Income generated from renting out property or assets.",
+        example: "The income generated by leasing out company-owned property.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Royalty Income": {
+        group: "Trading Account",
+        position: "Credit Side",
+        description: "Income from royalty payments for intellectual property.",
+        example: "Income from patents or trademarks owned by the company.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Gross Profit": {
+        group: "Profit and Loss Account",
+        position: "Credit Side",
+        description: "The difference between Sales and Cost of Goods Sold (COGS).",
+        example: "Gross Profit = Sales - (Opening Stock + Purchases + Direct Expenses - Closing Stock).",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Operating Revenue": {
+        group: "Profit and Loss Account",
+        position: "Credit Side",
+        description: "Revenue earned from the primary business operations.",
+        example: "Income from selling goods or services.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Non-Operating Revenue": {
+        group: "Profit and Loss Account",
+        position: "Credit Side",
+        description: "Revenue earned from activities other than primary operations.",
+        example: "Interest income, rent received, dividend income.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Interest Received": {
+        group: "Profit and Loss Account",
+        position: "Credit Side",
+        description: "Income earned from investments, deposits, or loans given.",
+        example: "Interest earned on bank deposits.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Rent Received": {
+        group: "Profit and Loss Account",
+        position: "Credit Side",
+        description: "Income received from renting out property or assets.",
+        example: "Rent received from tenants for a company-owned building.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Commission Received": {
+        group: "Profit and Loss Account",
+        position: "Credit Side",
+        description: "Income from commission on sales or services provided.",
+        example: "Commission received from an affiliate program.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Discount Received": {
+        group: "Profit and Loss Account",
+        position: "Credit Side",
+        description: "Discount received from suppliers on purchases.",
+        example: "Discounts received for bulk purchasing from a supplier.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Bad Debts Recovered": {
+        group: "Profit and Loss Account",
+        position: "Credit Side",
+        description: "Amount recovered from previously written-off bad debts.",
+        example: "A customer repays an amount that was previously written off as bad debt.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Dividend Received": {
+        group: "Profit and Loss Account",
+        position: "Credit Side",
+        description: "Income earned from shares or investments in other companies.",
+        example: "Dividends received from an investment in another company.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Miscellaneous Income": {
+        group: "Profit and Loss Account",
+        position: "Credit Side",
+        description: "Income earned from sources that are not the main business operations.",
+        example: "Earnings from sale of old equipment or scrap.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Operating Expenses": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Expenses incurred for running the business operations.",
+        example: "Salaries, rent, advertising, utilities.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Salaries and Wages": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Salaries paid to employees and wages paid to workers.",
+        example: "Monthly salary of office staff.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Rent and Rates": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Rent paid for office, factory, or business premises.",
+        example: "Monthly rent paid for office space.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Electricity and Water": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Utility expenses incurred for business operations.",
+        example: "Electricity and water bills for the office.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Advertising and Promotion": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Expenses incurred for marketing and promotional activities.",
+        example: "Social media ads and print advertisements.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Depreciation": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Reduction in the value of fixed assets over time.",
+        example: "Depreciation on machinery and office equipment.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Telephone and Internet Expenses": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Expenses related to communication and connectivity.",
+        example: "Internet charges for the office.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Insurance Premiums": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Insurance costs for business assets, employees, and operations.",
+        example: "Insurance for business property and vehicles.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Legal and Professional Fees": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Legal and consultancy charges paid to professionals.",
+        example: "Fees paid to an accountant or lawyer.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Bank Charges": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Fees charged by banks for transactions and account maintenance.",
+        example: "Bank charges for fund transfers and overdraft facilities.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Bad Debts": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Amounts that are unlikely to be collected from customers.",
+        example: "If a customer defaults on payment, it is recorded as bad debt.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Interest on Loans": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Interest paid on business loans.",
+        example: "Interest payments on a bank loan for business expansion.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Commission Paid": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Commission paid to agents or salespersons.",
+        example: "Commission given to sales agents for closing deals.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Discount Allowed": {
+        group: "Profit and Loss Account",
+        position: "Debit Side",
+        description: "Discount given to customers to encourage prompt payment.",
+        example: "A discount of 5% given on early payments.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Net Profit": {
+        group: "Profit and Loss Account",
+        position: "Calculated",
+        description: "Final profit after all expenses are deducted from total revenue.",
+        example: "Net Profit = Gross Profit + Other Income - Total Expenses.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Net Profit Transferred from Profit and Loss Account": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Credit Side",
+        description: "Net profit from the Profit and Loss Account transferred to the appropriation account for further distribution.",
+        example: "If Net Profit = ₹5,00,000, it is recorded on the credit side.",
+        category: "Income",
+        applicableYear: "For the current accounting year"
+    },
+    "Interest on Capital": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Interest given to partners on their capital contributions.",
+        example: "If a partner has ₹1,00,000 capital and the interest rate is 10%, interest paid = ₹10,000.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Salary to Partners": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Salary paid to partners as per partnership agreement.",
+        example: "If a partner’s monthly salary is ₹50,000, annual expense = ₹6,00,000.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Commission to Partners": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Commission paid to partners based on profit percentage or fixed amount.",
+        example: "If a partner receives a 5% commission on net profit of ₹5,00,000, commission = ₹25,000.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Reserve Fund Allocation": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Amount set aside for future business expansion, contingencies, or reinvestment.",
+        example: "If 10% of net profit is allocated, Reserve Fund = ₹50,000 for ₹5,00,000 net profit.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "General Reserve": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Part of profit kept for general business needs.",
+        example: "If a business decides to keep ₹1,00,000 in reserve, it is recorded here.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Dividend Proposed": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Dividend to be paid to shareholders, declared but not yet paid.",
+        example: "If ₹2 per share is declared as a dividend for 10,000 shares, total = ₹20,000.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Dividend Paid": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Final dividend paid to shareholders after declaration.",
+        example: "If ₹20,000 worth of dividends are distributed, they are recorded here.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Retained Earnings (Balance Carried Forward)": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Credit Side",
+        description: "The remaining profit after all appropriations, carried forward to the next year.",
+        example: "If ₹3,00,000 is left after appropriations, it is carried forward.",
+        category: "Income",
+        applicableYear: "For the next accounting year"
+    },
+    "Provision for Taxation": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Amount set aside for expected tax liabilities.",
+        example: "If corporate tax is estimated at 30% of ₹5,00,000 profit, provision = ₹1,50,000.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Bonus to Employees": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Bonus paid to employees from company profit.",
+        example: "If a company distributes ₹50,000 as bonuses, it is recorded here.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Charity and Donations": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Donations made to charities or public organizations from profit.",
+        example: "If ₹10,000 is donated to a non-profit organization, it is recorded here.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Workmen Compensation Fund": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Funds set aside for workmen's compensation and liabilities.",
+        example: "If ₹25,000 is allocated for workers' compensation, it is recorded here.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Debenture Redemption Reserve": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Reserve created for repayment of debentures at maturity.",
+        example: "If ₹1,00,000 is allocated for debenture redemption, it is recorded here.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Capital Redemption Reserve": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Reserve created for repaying preference shares.",
+        example: "If ₹2,00,000 is allocated for redemption of capital, it is recorded here.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Investment Fluctuation Reserve": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Amount set aside to cover losses from investment value fluctuations.",
+        example: "If ₹30,000 is kept aside for potential investment losses, it is recorded here.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    "Corporate Social Responsibility (CSR) Expense": {
+        group: "Profit and Loss Appropriation Account",
+        position: "Debit Side",
+        description: "Funds allocated for CSR initiatives as per legal requirements.",
+        example: "If ₹1,50,000 is spent on social development, it is recorded here.",
+        category: "Expense",
+        applicableYear: "For the current accounting year"
+    },
+    
+    "Cash in Hand": {
+        group: "Blance sheet",
+        category: "Current Assets",
+        description: "Physical cash available with the business.",
+        example: "If a business has ₹50,000 in hand, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Cash at Bank": {
+        group: "Blance sheet",
+        category: "Current Assets",
+        description: "Balance in business bank accounts.",
+        example: "If ₹5,00,000 is in the bank, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Accounts Receivable (Debtors)": {
+        group: "Blance sheet",
+        category: "Current Assets",
+        description: "Amounts due from customers.",
+        example: "If customers owe ₹1,20,000, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Bills Receivable": {
+        group: "Blance sheet",
+        category: "Current Assets",
+        description: "Bills accepted by customers promising future payment.",
+        example: "If a bill worth ₹30,000 is due, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Inventory (Stock)": {
+        group: "Blance sheet",
+        category: "Current Assets",
+        description: "Value of unsold goods.",
+        example: "If stock is valued at ₹2,00,000, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Prepaid Expenses": {
+        group: "Blance sheet",
+        category: "Current Assets",
+        description: "Expenses paid in advance for future benefits.",
+        example: "If ₹10,000 rent is prepaid, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Marketable Securities": {
+        group: "Blance sheet",
+        category: "Current Assets",
+        description: "Short-term investments like stocks and bonds.",
+        example: "If ₹1,50,000 is invested in stocks, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Fixed Assets": {
+        group: "Blance sheet",
+        category: "Non-Current Assets",
+        description: "Long-term assets like land, buildings, and machinery.",
+        example: "If a business owns machinery worth ₹10,00,000, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Land and Buildings": {
+        group: "Blance sheet",
+        category: "Non-Current Assets",
+        description: "Property owned by the business.",
+        example: "If land is worth ₹20,00,000, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Machinery": {
+        group: "Blance sheet",
+        category: "Non-Current Assets",
+        description: "Machines used for production.",
+        example: "If a business owns machines worth ₹5,00,000, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Furniture and Fixtures": {
+        group: "Blance sheet",
+        category: "Non-Current Assets",
+        description: "Furniture used in offices and factories.",
+        example: "If office furniture is worth ₹2,00,000, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Intangible Assets (Goodwill, Patents, Trademarks)": {
+        group: "Blance sheet",
+        category: "Non-Current Assets",
+        description: "Non-physical assets with long-term value.",
+        example: "If goodwill is worth ₹1,00,000, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Investments": {
+        group: "Blance sheet",
+        category: "Non-Current Assets",
+        description: "Long-term investments in other companies.",
+        example: "If ₹10,00,000 is invested in bonds, it is recorded here.",
+        position: "Debit Side"
+    },
+
+    // LIABILITIES
+    "Accounts Payable (Creditors)": {
+        group: "Blance sheet",
+        category: "Current Liabilities",
+        description: "Amounts owed to suppliers.",
+        example: "If ₹1,00,000 is payable to suppliers, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Bills Payable": {
+        group: "Blance sheet",
+        category: "Current Liabilities",
+        description: "Bills due to be paid to creditors.",
+        example: "If ₹50,000 is due, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Outstanding Expenses": {
+        group: "Blance sheet",
+        category: "Current Liabilities",
+        description: "Expenses due but not yet paid.",
+        example: "If ₹20,000 salary is due, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Short-Term Loans": {
+        group: "Blance sheet",
+        category: "Current Liabilities",
+        description: "Loans payable within a year.",
+        example: "If ₹5,00,000 is borrowed for 6 months, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Bank Overdraft": {
+        group: "Blance sheet",
+        category: "Current Liabilities",
+        description: "Negative bank balance due to excess withdrawals.",
+        example: "If ₹50,000 overdraft is used, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Long-Term Loans": {
+        group: "Blance sheet",
+        category: "Non-Current Liabilities",
+        description: "Loans repayable after more than a year.",
+        example: "If ₹10,00,000 loan is due in 5 years, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Debentures": {
+        group: "Blance sheet",
+        category: "Non-Current Liabilities",
+        description: "Debt instruments issued by a company.",
+        example: "If a company issues ₹15,00,000 debentures, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Provision for Taxation": {
+        group: "Blance sheet",
+        category: "Current Liabilities",
+        description: "Estimated tax liability set aside.",
+        example: "If ₹2,00,000 is allocated for tax, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Provision for Bad Debts": {
+        group: "Blance sheet",
+        category: "Current Liabilities",
+        description: "Estimated loss from non-paying debtors.",
+        example: "If ₹10,000 is expected as bad debts, it is recorded here.",
+        position: "Credit Side"
+    },
+
+    // CAPITAL
+    "Owner's Capital": {
+        group: "Blance sheet",
+        category: "Capital",
+        description: "Initial and additional investments by the owner.",
+        example: "If the owner invests ₹10,00,000, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Retained Earnings": {
+        group: "Blance sheet",
+        category: "Capital",
+        description: "Profits retained for business growth.",
+        example: "If ₹5,00,000 profit is retained, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Reserve and Surplus": {
+        group: "Blance sheet",
+        category: "Capital",
+        description: "Profits set aside for future business expansion.",
+        example: "If ₹2,00,000 is allocated as reserves, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Drawing (Owner's Withdrawal)": {
+        group: "Blance sheet",
+        category: "Deduction from Capital",
+        description: "Money withdrawn by the owner for personal use.",
+        example: "If ₹50,000 is withdrawn, it is recorded as a deduction.",
+        position: "Debit Side"
+    }
+        };
+    
+        const bikes1 = {
+        "Sales Revenue": {
+    group: "Income",
+    category: "Operating Revenue",
+    description: "Income from selling goods or services.",
+    example: "If a company sells ₹10,00,000 worth of products, it is recorded here.",
+    position: "Credit Side"
+},
+"Service Revenue": {
+    group: "Income",
+    category: "Operating Revenue",
+    description: "Income earned from providing services.",
+    example: "If a software company earns ₹5,00,000 from services, it is recorded here.",
+    position: "Credit Side"
+},
+"Interest Income": {
+    group: "Income",
+    category: "Non-Operating Revenue",
+    description: "Earnings from bank deposits, loans, or investments.",
+    example: "If interest of ₹25,000 is earned, it is recorded here.",
+    position: "Credit Side"
+},
+"Dividend Income": {
+    group: "Income",
+    category: "Non-Operating Revenue",
+    description: "Income from investments in stocks.",
+    example: "If a business earns ₹40,000 in dividends, it is recorded here.",
+    position: "Credit Side"
+},
+"Rental Income": {
+    group: "Income",
+    category: "Non-Operating Revenue",
+    description: "Income from leasing properties.",
+    example: "If rent of ₹60,000 is received, it is recorded here.",
+    position: "Credit Side"
+},
+"Commission Received": {
+    group: "Income",
+    category: "Non-Operating Revenue",
+    description: "Commission earned from services or referrals.",
+    example: "If ₹15,000 is earned in commissions, it is recorded here.",
+    position: "Credit Side"
+},
+"Gain on Sale of Fixed Assets": {
+    group: "Income",
+    category: "Other Income",
+    description: "Profit from selling long-term assets.",
+    example: "If an asset is sold for ₹2,00,000 with a ₹20,000 gain, it is recorded here.",
+    position: "Credit Side"
+},
+
+// COST OF GOODS SOLD (COGS)
+"Opening Stock": {
+    group: "Expense",
+    category: "Cost of Goods Sold",
+    description: "Value of inventory at the start of the accounting period.",
+    example: "If opening stock is ₹1,50,000, it is recorded here.",
+    position: "Debit Side"
+},
+"Purchases": {
+    group: "Expense",
+    category: "Cost of Goods Sold",
+    description: "Cost of raw materials or finished goods bought.",
+    example: "If goods worth ₹5,00,000 are purchased, it is recorded here.",
+    position: "Debit Side"
+},
+"Direct Expenses": {
+    group: "Expense",
+    category: "Cost of Goods Sold",
+    description: "Expenses directly related to production.",
+    example: "If ₹50,000 is spent on manufacturing wages, it is recorded here.",
+    position: "Debit Side"
+},
+"Closing Stock": {
+    group: "Expense",
+    category: "Cost of Goods Sold",
+    description: "Value of unsold inventory at the end of the accounting period.",
+    example: "If closing stock is ₹2,00,000, it is deducted from purchases.",
+    position: "Credit Side"
+},
+
+    "Direct Materials": {
+      group: "Cost of Goods Sold",
+      position: "Debit Side",
+      description: "Raw materials directly used in the production of goods.",
+      example: "Cost of wood used to make furniture.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Direct Labor": {
+      group: "Cost of Goods Sold",
+      position: "Debit Side",
+      description: "Wages paid to workers directly involved in the production process.",
+      example: "Salaries of factory workers.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Manufacturing Overhead": {
+      group: "Cost of Goods Sold",
+      position: "Debit Side",
+      description: "Indirect costs associated with production, excluding direct materials and labor.  This can be broken down further (see below).",
+      example: "Factory rent, utilities, and depreciation of manufacturing equipment.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+      "Indirect Materials": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "Materials used in the production process that are not directly traceable to the finished product.",
+      example: "Lubricants, cleaning supplies, and small tools used in the factory.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Indirect Labor": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "Wages paid to workers who support the production process but are not directly involved in making the product.",
+      example: "Salaries of factory supervisors, maintenance staff, and security guards.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Factory Rent": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "Rent expense for the factory building and production facilities.",
+      example: "Monthly rent payment for the factory.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Factory Utilities": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "Costs of electricity, water, gas, and other utilities used in the factory.",
+      example: "Monthly electricity bill for the factory.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Depreciation of Manufacturing Equipment": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "Allocation of the cost of manufacturing equipment over its useful life.",
+      example: "Annual depreciation expense for factory machinery.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+      "Repairs and Maintenance (Factory)": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "Costs incurred for repairing and maintaining factory equipment and facilities.",
+      example: "Cost of repairing a broken machine in the factory.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Property Taxes (Factory)": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "Property taxes levied on the factory building and land.",
+      example: "Annual property tax bill for the factory.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Insurance (Factory)": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "Insurance premiums paid for coverage of the factory building and equipment.",
+      example: "Annual insurance premium for the factory.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Amortization of Intangible Assets (Related to Production)": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "The systematic reduction of the carrying amount of intangible assets related to the production process over their useful life.",
+      example: "Amortization of patents or copyrights used in manufacturing.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Depletion of Natural Resources": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "The allocation of the cost of natural resources (e.g., oil, gas, minerals) used in production over the period they are extracted.",
+      example: "Depletion expense for minerals extracted from a mine.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Small Tools and Supplies": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "Cost of small tools and consumable supplies used in the production process.",
+      example: "Cost of drill bits, sandpaper, and cleaning supplies.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Spoilage and Waste": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "Costs associated with spoiled or wasted materials during the production process.",
+      example: "Cost of damaged or unusable raw materials.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Rework Costs": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead)",
+      position: "Debit Side",
+      description: "Costs incurred to rework defective products to make them saleable.",
+      example: "Labor and materials used to fix a manufacturing defect.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Idle Capacity Costs": {
+      group: "Cost of Goods Sold (Part of Manufacturing Overhead - Can be treated separately)",
+      position: "Debit Side",
+      description: "Costs associated with underutilized production capacity.",
+      example: "Fixed overhead costs that are not absorbed due to low production volume.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Purchase Returns and Allowances": {
+      group: "Cost of Goods Sold",
+      position: "Credit Side",
+      description: "Value of goods returned to suppliers or price reductions granted by suppliers.",
+      example: "Returning damaged raw materials to the vendor.",
+      category: "Contra Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Purchase Discounts": {
+      group: "Cost of Goods Sold",
+      position: "Credit Side",
+      description: "Discounts received from suppliers for early payment of invoices.",
+      example: "Discount of 2% for paying within 10 days.",
+      category: "Contra Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Freight In": {
+      group: "Cost of Goods Sold",
+      position: "Debit Side",
+      description: "Transportation costs incurred to bring raw materials or goods into the production facility.",
+      example: "Shipping charges for raw materials.",
+      category: "Expense",
+      applicableYear: "For the current accounting year"
+    },
+    "Work-in-Process Inventory, Beginning": {
+      group: "Cost of Goods Sold",
+      position: "Debit Side",
+      description: "Value of partially completed goods at the start of the accounting period.",
+      example: "Cost of unfinished goods from the previous period.",
+      category: "Asset",
+      applicableYear: "For the current accounting year"
+    },
+    "Work-in-Process Inventory, Ending": {
+    group: "Cost of Goods Sold",
+    position: "Credit Side",
+    description: "Value of partially completed goods at the end of the accounting period.",
+    example: "Cost of unfinished goods at the end of the current period.",
+    category: "Asset",
+    applicableYear: "For the current accounting year"
+    },
+   "Opening Stock": {
+        group: "Expense",
+       category: "Cost of Goods Sold",
+        description: "Value of inventory at the start of the accounting period.",
+       example: "If opening stock is ₹1,50,000, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Purchases": {
+        group: "Expense",
+       category: "Cost of Goods Sold",
+        description: "Cost of raw materials or finished goods bought.",
+       example: "If goods worth ₹5,00,000 are purchased, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Purchase Return": {
+        group: "Expense",
+       category: "Cost of Goods Sold",
+        description: "Returns of purchased goods due to defects or other reasons.",
+       example: "If ₹30,000 worth of defective goods are returned, it is recorded here.",
+        position: "Credit Side"
+    },
+    "Wages": {
+        group: "Expense",
+       category: "Cost of Goods Sold",
+        description: "Wages paid to workers directly involved in production.",
+       example: "If ₹1,00,000 is paid as wages to factory workers, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Carriage Inward": {
+        group: "Expense",
+       category: "Cost of Goods Sold",
+        description: "Cost of transportation for bringing goods into the business.",
+       example: "If ₹20,000 is spent on freight to transport raw materials, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Direct Expenses": {
+        group: "Expense",
+       category: "Cost of Goods Sold",
+        description: "Expenses directly related to production.",
+       example: "If ₹50,000 is spent on manufacturing wages, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Other Manufacturing Expenses": {
+        group: "Expense",
+       category: "Cost of Goods Sold",
+        description: "Additional costs incurred in manufacturing such as machine repairs or maintenance.",
+       example: "If ₹40,000 is spent on machinery maintenance, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Factory Overheads": {
+        group: "Expense",
+       category: "Cost of Goods Sold",
+        description: "Indirect costs related to production such as factory rent, utilities, and depreciation.",
+       example: "If ₹75,000 is spent on factory expenses, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Power & Fuel": {
+        group: "Expense",
+       category: "Cost of Goods Sold",
+        description: "Electricity, gas, or fuel expenses required for manufacturing.",
+       example: "If ₹50,000 is spent on electricity for production, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Closing Stock": {
+        group: "Expense",
+       category: "Cost of Goods Sold",
+        description: "Value of unsold inventory at the end of the accounting period.",
+       example: "If closing stock is ₹2,00,000, it is deducted from purchases.",
+        position: "Credit Side"
+    }
+,
+// OPERATING EXPENSES
+"Salaries & Wages": {
+    group: "Expense",
+    category: "Operating Expense",
+    description: "Payments made to employees.",
+    example: "If ₹3,00,000 is paid as salaries, it is recorded here.",
+    position: "Debit Side"
+},
+"Rent Expense": {
+    group: "Expense",
+    category: "Operating Expense",
+    description: "Cost of leasing business premises.",
+    example: "If office rent is ₹75,000, it is recorded here.",
+    position: "Debit Side"
+},
+"Utilities (Electricity, Water, Internet)": {
+    group: "Expense",
+    category: "Operating Expense",
+    description: "Monthly expenses for running office utilities.",
+    example: "If ₹20,000 is spent on utilities, it is recorded here.",
+    position: "Debit Side"
+},
+"Advertising & Marketing Expense": {
+    group: "Expense",
+    category: "Operating Expense",
+    description: "Cost of promoting products or services.",
+    example: "If ₹1,00,000 is spent on marketing, it is recorded here.",
+    position: "Debit Side"
+},
+"Depreciation Expense": {
+    group: "Expense",
+    category: "Operating Expense",
+    description: "Reduction in asset value over time.",
+    example: "If depreciation on machinery is ₹80,000, it is recorded here.",
+    position: "Debit Side"
+},
+"Repairs & Maintenance": {
+    group: "Expense",
+    category: "Operating Expense",
+    description: "Cost of maintaining fixed assets.",
+    example: "If ₹30,000 is spent on repairs, it is recorded here.",
+    position: "Debit Side"
+},
+"Insurance Expense": {
+    group: "Expense",
+    category: "Operating Expense",
+    description: "Cost of business insurance.",
+    example: "If insurance premium is ₹40,000, it is recorded here.",
+    position: "Debit Side"
+},
+
+
+    
+    "Depreciation on Fixed Assets": {
+        group: "Expense",
+        categor: "General and Administrative Expenses",
+        description: "Reduction in value of tangible assets over time due to wear and tear.",
+        example: "If ₹50,000 is the depreciation on machinery, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Amortization of Intangible Assets": {
+        group: "Expense",
+        categor: "General and Administrative Expenses",
+        description: "Gradual expense recognition of intangible assets like patents and copyrights.",
+        example: "If ₹20,000 is amortized for a patent, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Salaries and Wages of Office Staff": {
+        group: "Expense",
+        categor: "General and Administrative Expenses",
+        description: "Payments to employees not directly involved in production.",
+        example: "If ₹3,00,000 is paid to office staff, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Insurance Expenses": {
+        group: "Expense",
+        categor: "General and Administrative Expenses",
+        description: "Premiums paid for business insurance policies.",
+        example: "If ₹40,000 is paid for office insurance, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Supplies Expenses": {
+        group: "Expense",
+        categor: "General and Administrative Expenses",
+        description: "Cost of office supplies such as paper, pens, and other materials.",
+        example: "If ₹10,000 is spent on office supplies, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Utility Expenses": {
+        group: "Expense",
+        categor: "General and Administrative Expenses",
+        description: "Cost of electricity, water, internet, and phone services for administrative purposes.",
+        example: "If ₹30,000 is spent on office electricity and internet, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Office Rent Expenses": {
+        group: "Expense",
+        categor: "General and Administrative Expenses",
+        description: "Cost of leasing office space.",
+        example: "If ₹1,50,000 is paid as rent, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Printing and Stationery Expenses": {
+        group: "Expense",
+        categor: "General and Administrative Expenses",
+        description: "Cost of printing documents, business cards, and stationery items.",
+        example: "If ₹15,000 is spent on printing and stationery, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Other Administrative Expenses": {
+        group: "Expense",
+        categor: "General and Administrative Expenses",
+        description: "Miscellaneous costs related to administration and management.",
+        example: "If ₹25,000 is spent on office maintenance and other minor expenses, it is recorded here.",
+        position: "Debit Side"
+    },
+
+    "Advertising Expenses": {
+        group: "Expense",
+        category: "Selling and Distribution Expenses",
+       description: "Costs incurred for promoting and marketing products.",
+        example: "If ₹1,00,000 is spent on digital ads, TV commercials, and banners, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Salesman Salary": {
+        group: "Expense",
+        category: "Selling and Distribution Expenses",
+       description: "Salaries and commissions paid to sales representatives.",
+        example: "If ₹2,00,000 is paid to the sales team, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Warehouse Expenses": {
+        group: "Expense",
+        category: "Selling and Distribution Expenses",
+       description: "Costs related to storage, rent, and maintenance of warehouses.",
+        example: "If ₹50,000 is spent on warehouse rent and maintenance, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Bad Debts": {
+        group: "Expense",
+        category: "Selling and Distribution Expenses",
+       description: "Amounts owed by customers that are unlikely to be recovered.",
+        example: "If ₹30,000 worth of invoices remain unpaid, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Packing Expenses": {
+        group: "Expense",
+        category: "Selling and Distribution Expenses",
+       description: "Costs of packaging materials and labor before shipment.",
+        example: "If ₹20,000 is spent on packaging boxes and wrapping, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Freight and Transportation": {
+        group: "Expense",
+        category: "Selling and Distribution Expenses",
+       description: "Cost of transporting goods to customers or distributors.",
+        example: "If ₹75,000 is spent on logistics and shipping, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Sales Promotion Expenses": {
+        group: "Expense",
+        category: "Selling and Distribution Expenses",
+       description: "Expenses for promotional events, discounts, and free samples.",
+        example: "If ₹40,000 is spent on promotional events, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Commission on Sales": {
+        group: "Expense",
+        category: "Selling and Distribution Expenses",
+       description: "Commission paid to agents and intermediaries for sales.",
+        example: "If ₹60,000 is given as commission to sales agents, it is recorded here.",
+        position: "Debit Side"
+    },
+    "After-Sales Service Expenses": {
+        group: "Expense",
+        category: "Selling and Distribution Expenses",
+       description: "Costs incurred for warranties, repairs, and customer service.",
+        example: "If ₹30,000 is spent on servicing sold products, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Market Research Expenses": {
+        group: "Expense",
+        category: "Selling and Distribution Expenses",
+       description: "Expenses incurred for market surveys and customer research.",
+        example: "If ₹25,000 is spent on consumer behavior analysis, it is recorded here.",
+        position: "Debit Side"
+    },
+    "Exhibition and Trade Show Expenses": {
+        group: "Expense",
+        category: "Selling and Distribution Expenses",
+       description: "Costs of participating in trade fairs and business expos.",
+        example: "If ₹80,000 is spent on setting up a stall in a trade show, it is recorded here.",
+        position: "Debit Side"
+    },
+
+"Interest Expense": {
+    group: "Expense",
+    category: "Non-Operating Expense",
+    description: "Interest paid on loans or overdrafts.",
+    example: "If ₹1,00,000 interest is paid on a loan, it is recorded here.",
+    position: "Debit Side"
+},
+"Loss on Sale of Fixed Assets": {
+    group: "Expense",
+    category: "Other Expense",
+    description: "Loss incurred when an asset is sold for less than its value.",
+    example: "If an asset is sold at a ₹15,000 loss, it is recorded here.",
+    position: "Debit Side"
+},
+"Bad Debts": {
+    group: "Expense",
+    category: "Other Expense",
+    description: "Amounts that cannot be recovered from debtors.",
+    example: "If ₹10,000 is declared as bad debts, it is recorded here.",
+    position: "Debit Side"
+},
+"Provision for Doubtful Debts": {
+    group: "Expense",
+    category: "Other Expense",
+    description: "Estimated amount of doubtful debts.",
+    example: "If ₹5,000 is set aside as doubtful debts, it is recorded here.",
+    position: "Debit Side"
+},
+
+// FINAL NET PROFIT/LOSS CALCULATION
+"Gross Profit": {
+    group: "Summary",
+    category: "Final Calculation",
+    description: "Total revenue minus COGS.",
+    example: "If revenue is ₹10,00,000 and COGS is ₹6,00,000, gross profit is ₹4,00,000.",
+    position: "Credit Side"
+},
+"Net Profit": {
+    group: "Summary",
+    category: "Final Calculation",
+    description: "Final profit after all expenses are deducted.",
+    example: "If operating expenses are ₹1,50,000 and non-operating expenses are ₹50,000, net profit is ₹2,00,000.",
+    position: "Credit Side"
+},
+"Net Loss": {
+    group: "Summary",
+    category: "Final Calculation",
+    description: "If total expenses exceed total revenue.",
+    example: "If total expenses are ₹8,00,000 and revenue is ₹7,00,000, net loss is ₹1,00,000.",
+    position: "Debit Side"
+}
+,
+    "Cash and Bank Balance": {
+       group: "Current Assets",
+        category: "Cash and Cash Equivalents",
+        description: "Funds available in cash or bank accounts for immediate use.",
+        example: "₹50,000 in a savings account is recorded here.",
+        position: "Asset Side"
+    },
+    "Marketable Securities": {
+       group: "Current Assets",
+        category: "Short-term Investments",
+        description: "Liquid financial instruments that can be quickly converted into cash.",
+        example: "₹1,00,000 invested in treasury bills.",
+        position: "Asset Side"
+    },
+    "Debtors/Accounts Receivable/Bills Receivable": {
+       group: "Current Assets",
+        category: "Receivables",
+        description: "Amounts due from customers for goods or services provided on credit.",
+        example: "A client owes ₹75,000 for delivered goods.",
+        position: "Asset Side"
+    },
+    "Stock in Hand/Inventory/Store Supplies": {
+       group: "Current Assets",
+        category: "Inventory",
+        description: "Raw materials, work-in-progress, and finished goods available for sale.",
+        example: "₹2,00,000 worth of unsold merchandise.",
+        position: "Asset Side"
+    },
+    "Work-in-Progress Inventory": {
+       group: "Current Assets",
+        category: "Inventory",
+        description: "Partially completed goods still in production.",
+        example: "₹50,000 worth of unfinished furniture.",
+        position: "Asset Side"
+    },
+    "Prepaid Expenses": {
+       group: "Current Assets",
+        category: "Prepaid and Deferred Expenses",
+        description: "Expenses paid in advance for future benefits.",
+        example: "₹10,000 paid for an annual insurance policy.",
+        position: "Asset Side"
+    },
+    "Accrued Income": {
+       group: "Current Assets",
+        category: "Accrued Revenue",
+        description: "Income earned but not yet received.",
+        example: "₹15,000 in interest income accrued but not received.",
+        position: "Asset Side"
+    },
+    "Short-term Loans and Advances": {
+       group: "Current Assets",
+        category: "Loans and Advances",
+        description: "Short-term loans given to employees or third parties.",
+        example: "₹30,000 loaned to an employee.",
+        position: "Asset Side"
+    },
+    "Government Bonds/Investment": {
+       group: "Investments",
+        category: "Fixed Income Investments",
+        description: "Long-term government securities held for income generation.",
+        example: "₹3,00,000 invested in 10-year government bonds.",
+        position: "Asset Side"
+    },
+    "Investment in Shares/Debentures": {
+       group: "Investments",
+        category: "Equity and Debt Investments",
+        description: "Shares and debentures held for potential returns.",
+        example: "₹2,50,000 in blue-chip company shares.",
+        position: "Asset Side"
+    },
+    "Land and Building": {
+       group: "Property, Plant and Equipment",
+        category: "Real Estate",
+        description: "Owned land and buildings used in business operations.",
+        example: "A factory building valued at ₹10,00,000.",
+        position: "Asset Side"
+    },
+    "Furniture and Fixtures": {
+       group: "Property, Plant and Equipment",
+        category: "Office Equipment",
+        description: "Office furniture and fixtures used in daily operations.",
+        example: "₹1,50,000 spent on office desks and chairs.",
+        position: "Asset Side"
+    },
+    "Machinery and Equipment": {
+       group: "Property, Plant and Equipment",
+        category: "Manufacturing Equipment",
+        description: "Machines used in production or operations.",
+        example: "₹8,00,000 spent on manufacturing machines.",
+        position: "Asset Side"
+    },
+    "Vehicles": {
+       group: "Property, Plant and Equipment",
+        category: "Transportation Assets",
+        description: "Company-owned vehicles used for logistics and operations.",
+        example: "₹3,50,000 spent on delivery vans.",
+        position: "Asset Side"
+    },
+    "Goodwill": {
+       group: "Intangible Assets",
+        category: "Reputation and Brand Value",
+        description: "Value of the company’s brand, customer loyalty, and market position.",
+        example: "₹5,00,000 recorded as goodwill after acquiring another company.",
+        position: "Asset Side"
+    },
+    "Patents": {
+       group: "Intangible Assets",
+        category: "Intellectual Property",
+        description: "Legal rights granted for inventions and innovations.",
+        example: "₹2,00,000 spent on patent registration.",
+        position: "Asset Side"
+    },
+    "Preliminary Expenses": {
+       group: "Fictitious Assets",
+        category: "Startup Expenses",
+        description: "Expenses incurred during company formation.",
+        example: "₹1,00,000 spent on legal and registration fees.",
+        position: "Asset Side"
+    },
+    "Accounts Payable/Bills Payable": {
+       group: "Current Liabilities",
+        category: "Trade Payables",
+        description: "Amounts owed to suppliers for goods or services received.",
+        example: "₹1,20,000 payable to a supplier.",
+        position: "Liability Side"
+    },
+    "Income Taxes Payable": {
+       group: "Current Liabilities",
+        category: "Tax Liabilities",
+        description: "Taxes due to be paid within the current financial period.",
+        example: "₹75,000 due for corporate tax.",
+        position: "Liability Side"
+    },
+    "Accrued Expenses": {
+       group: "Current Liabilities",
+        category: "Accrued Liabilities",
+        description: "Expenses incurred but not yet paid.",
+        example: "₹25,000 in unpaid electricity bills.",
+        position: "Liability Side"
+    },
+    "Short-Term Bank Loan": {
+       group: "Current Liabilities",
+        category: "Short-Term Borrowings",
+        description: "Loans due for repayment within a year.",
+        example: "₹3,00,000 short-term loan from the bank.",
+        position: "Liability Side"
+    },
+    "Bank Loan/Mortgage Loan": {
+       group: "Long-term Debt",
+        category: "Secured Loans",
+        description: "Loans taken from banks with long-term repayment schedules.",
+        example: "₹15,00,000 mortgage loan on business property.",
+        position: "Liability Side"
+    },
+    "Debentures": {
+       group: "Long-term Debt",
+        category: "Corporate Bonds",
+        description: "Bonds issued by the company for long-term financing.",
+        example: "₹10,00,000 raised through debentures.",
+        position: "Liability Side"
+    },
+    "Common Stock/Equity Share Capital": {
+       group: "Stockholders' Equity",
+        category: "Shareholders’ Contributions",
+        description: "Capital contributed by shareholders in exchange for shares.",
+        example: "₹20,00,000 in issued common stock.",
+        position: "Liability Side"
+    },
+    "Preferred Stock/Preference Share Capital": {
+       group: "Stockholders' Equity",
+        category: "Priority Shares",
+        description: "Shares with fixed dividends and preference over common stock.",
+        example: "₹5,00,000 in preference shares.",
+        position: "Liability Side"
+    },
+    "Retained Earnings": {
+       group: "Stockholders' Equity",
+        category: "Accumulated Profits",
+        description: "Net profits retained in the business for future growth.",
+        example: "₹8,00,000 retained from previous years’ profits.",
+        position: "Liability Side"
+    }
+
+
+        };
+    
+        // Add traditional bikes initially
+        Object.keys(bikes).forEach(bike => {
+            const btn = document.createElement("button");
+            btn.className = "btn";
+            btn.innerText = bike;
+            btn.onclick = () => showDetails(bike, bikes);
+            container.appendChild(btn);
+        });
+    
+        // Show modern bikes when clicked
+        function showModernBikes() {
+            detailsDiv.style.display = "none";
+selected.innerText="Moder Final Account"
+            isModernActive = true;
+            isTraditionalActive = false;
+            // Clear existing buttons
+            container.innerHTML = "";
+    
+            // Add modern bikes
+            Object.keys(bikes1).forEach(bike => {
+                const btn = document.createElement("button");
+                btn.className = "btn";
+                btn.innerText = bike;
+                btn.onclick = () => showDetails(bike, bikes1);
+                container.appendChild(btn);
+            });
+        }
+    
+        // Show traditional bikes when clicked
+        function showTraditionalBikes() {
+            selected.innerText="Traditional Final Account"
+            detailsDiv.style.display = "none";
+            isTraditionalActive = true;
+            isModernActive = false;
+            // Clear existing buttons
+            container.innerHTML = "";
+    
+            // Add traditional bikes
+            Object.keys(bikes).forEach(bike => {
+                const btn = document.createElement("button");
+                btn.className = "btn";
+                btn.innerText = bike;
+                btn.onclick = () => showDetails(bike, bikes);
+                container.appendChild(btn);
+            });
+        }
+        function search() {
+    // Clear any previous search results
+    container.innerHTML = "";
+    noResult.innerText = "";
+
+    // Get the search term and convert to lower case for case-insensitive search
+    const searchValue = searchbar.value.toLowerCase();
+    let found = false;
+
+    // Function to search within a given dataset
+    const searchDataset = (dataset, datasetName) => {
+        Object.entries(dataset).forEach(([itemName, itemData]) => {
+            // Check if the search term is in the key or the description
+            if (
+                itemName.toLowerCase().includes(searchValue) ||
+                itemData.description.toLowerCase().includes(searchValue)
+            ) {
+                found = true;
+                // Create a button for each matching item
+                const btn = document.createElement("button");
+                btn.className = "btn";
+                btn.innerText = itemName;
+                // The showDetails function receives the dataset name so it can handle which dataset to display
+                btn.onclick = () => showDetails(itemName, dataset);
+                container.appendChild(btn);
+            }
+        });
+    };
+
+    // Check which dataset is active and perform search accordingly.
+    if (isModernActive && !isTraditionalActive) {
+        // Only Modern active, search modern bikes
+        searchDataset(bikes1, "Modern");
+    } else if (isTraditionalActive && !isModernActive) {
+        // Only Traditional active, search traditional bikes
+        searchDataset(bikes, "Traditional");
+    } else if (isModernActive && isTraditionalActive) {
+        // If both are active, you can decide to search both datasets:
+        searchDataset(bikes, "Traditional");
+        searchDataset(bikes1, "Modern");
+    } else {
+        // If none is active, instruct the user to select one.
+        noResult.innerText = "Please click either Traditional or Modern Bikes button first";
+        return;
+    }
+
+    // If no matches were found, display a message
+    if (!found) {
+        noResult.innerText = "No items found";
+    }
+}
+
+    
+        // Show details of the selected bike
+        function showDetails(bike, bikeList) {
+            document.getElementById("bike-name").innerText = bike;
+            document.getElementById("bike-brand").innerText = bikeList[bike].group;
+            document.getElementById("bike-engine").innerText = bikeList[bike].position;
+            document.getElementById("bike-price").innerText = bikeList[bike].category;
+            document.getElementById("bike-example").innerText = bikeList[bike].example;
+            detailsDiv.style.display = "block"; // Show the bike details
+        }
+    </script>
+</body>
+</html>    
