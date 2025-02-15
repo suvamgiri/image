@@ -8,8 +8,8 @@
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
         body {
-            background-color: #121212;
-            color: white;
+            background-color: white;
+            color: black;
             font-family: Arial, sans-serif;
         }
         .container {
@@ -67,9 +67,10 @@
             margin-top: 20px;
         }
         .buttons .btn {
-            border: 1px solid white;
+            border: 1px solid black;
             border-radius: 20px;
-            color: white;
+            color: black;
+            background-color: white;
             padding: 10px 15px;
             flex: 1;
             min-width: 120px;
@@ -110,7 +111,7 @@
         </div>
     
         <div class="search-bar">
-            <input type="text" id="search-bar" class="search-input" placeholder="Search...">
+            <input type="text" id="search-bar" class="search-input" placeholder="Search..." style="background: #dbdbdb;">
             <button class="search-btn" onclick="search()">Search</button>
         </div>
        <span id="selected" style="margin-top:20px;"> No selected</span>
@@ -200,7 +201,7 @@
         category: "Asset",
         applicableYear: "For the current accounting year"
     },
-    "Purchase Returns (Return Outward)": {
+    "Purchase Returns (Return Outward)": { 
         group: "Trading Account",
         position: "Credit Side (Deducted from Purchases)",
         description: "Goods returned to suppliers by the business.",
