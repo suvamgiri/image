@@ -101,7 +101,7 @@
 </head>
 <body>
     <div class="container">
-        <img src="https://suvamgiri.github.io/image/image/account.png" alt="Logo" class="logo">
+        <img src="account.png" alt="Logo" class="logo">
         <h1>Account Master</h1>
         <p>Account final account with modern and traditional</p>
     
@@ -111,9 +111,10 @@
         </div>
     
         <div class="search-bar">
-            <input type="text" id="search-bar" class="search-input" placeholder="Search..." style="background: #dbdbdb;">
+            <input type="text" id="search-bar" class="search-input" onkeyup="showSuggestions()" placeholder="Search..." style="background: #dbdbdb;">
             <button class="search-btn" onclick="search()">Search</button>
         </div>
+        <div id="suggestions"></div>
        <span id="selected" style="margin-top:20px;"> No selected</span>
         <div id="noResult" class="no-result"></div> <!-- Add a no result element -->
         
@@ -1832,8 +1833,7 @@ selected.innerText="Moder Final Account"
         noResult.innerText = "No items found";
     }
 }
-
-    function showSuggestions() {
+function showSuggestions() {
       const input = document.getElementById("search-bar").value.toLowerCase();
       const suggestionBox = document.getElementById("suggestions");
       suggestionBox.innerHTML = "";
@@ -1885,6 +1885,7 @@ selected.innerText="Moder Final Account"
 
     }
     }
+    
         // Show details of the selected bike
         function showDetails(bike, bikeList) {
             document.getElementById("bike-name").innerText = bike;
