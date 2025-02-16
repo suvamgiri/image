@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create & Download Dictionary Entry</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .input-group {
+      margin: 10px 0;
+    }
+    label {
+      display: inline-block;
+      width: 120px;
+    }
+    input {
+      padding: 5px;
+      width: 250px;
+    }
+    button {
+      padding: 8px 15px;
+      margin-top: 10px;
+      margin-right: 10px;
+    }
+    textarea {
+      margin-top: 20px;
+      width: 100%;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h2>Create New Dictionary Entry</h2>
+  <div class="input-group">
+    <label for="name">Name:</label>
+    <input type="text" id="name" placeholder="Retained Earnings" />
+  </div>
+  <div class="input-group">
+    <label for="group">Group:</label>
+    <input type="text" id="group" placeholder="Stockholders' Equity" />
+  </div>
+  <div class="input-group">
+    <label for="category">Category:</label>
+    <input type="text" id="category" placeholder="Accumulated Profits" />
+  </div>
+  <div class="input-group">
+    <label for="description">Description:</label>
+    <input type="text" id="description" placeholder="Net profits retained..." />
+  </div>
+  <div class="input-group">
+    <label for="example">Example:</label>
+    <input type="text" id="example" placeholder="₹8,00,000 retained..." />
+  </div>
+  <div class="input-group">
+    <label for="position">Position:</label>
+    <input type="text" id="position" placeholder="Liability Side" />
+  </div>
+  <button onclick="createEntry()">Add Entry</button>
+  
+  <h3>Dictionary Object:</h3>
+  <textarea id="dictionaryOutput" rows="10" readonly></textarea>
+  
+  <div style="margin-top: 20px;">
+    <button onclick="downloadJSON()">Download as JSON</button>
+    <button onclick="downloadTXT()">Download as TXT</button>
+  </div>
+
+  <script>
+    // Initialize an empty dictionary object
+    const dictionary = {};
+
+    // Function to add or update an entry
+    function createEntry() {
+      // Get values from input fields
+      const name = document.getElementById('name').value.trim();
+      const group = document.getElementById('group').value.trim();
+      const category = document.getElementById('category').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const example = document.getElementById('example').value.trim();
+      const position = document.getElementById('position').value.trim();
+
+      // Validate the 'name' field, as it will be used as the key
+      if (!name) {
+        alert("Please enter a valid name for the entry.");
+        return;
+      }
+
+      // Create or update the entry in the dictionary
+      dictionary[name] = {
+        group: group,
+        category: category,
+        description: description,
+        example: example,
+        position: position
+      };
+
+      // Update the output textarea with the formatted dictionary object
+      document.getElementById('dictionaryOutput').value = JSON.stringify(dictionary, null, 4);
+
+      // Clear the input fields for the next entry
+      document.getElementById('name').value = "";
+      document.getElementById('group').value = "";
+      document.getElementById('category').value = "";
+      document.getElementById('description').value = "";
+      document.getElementById('example').value = "";
+      document.getElementById('position').value = "";
+    }
+
+    // Function to download the dictionary as a JSON file
+    function downloadJSON() {
+      const dataStr = JSON.stringify(dictionary, null, 4);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "dictionary.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Function to download the dictionary as a plain text file
+    function downloadTXT() {
+      // Here, we convert the dictionary into a formatted string
+      let dataStr = "";
+      for (const key in dictionary) {
+        if (dictionary.hasOwnProperty(key)) {
+          dataStr += `${key}: {\n`;
+          for (const prop in dictionary[key]) {
+            if (dictionary[key].hasOwnProperty(prop)) {
+              dataStr += `  ${prop}: ${dictionary[key][prop]}\n`;
+            }
+          }
+          dataStr += `}\n\n`;
+        }
+      }
+      const blob = new Blob([dataStr], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "dictionary.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
