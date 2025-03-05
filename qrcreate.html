@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment QR Code</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        #qr-code { margin-top: 20px; }
+        #reader { width: 300px; margin: auto; }
+        #result { font-size: 18px; font-weight: bold; margin-top: 20px; color: green; }
+        #error { font-size: 18px; font-weight: bold; margin-top: 20px; color: red; }
+        h2 {
+            color: #4CAF50;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #qr-code {
+            margin-top: 20px;
+            display: inline-block;
+            border: 2px solid #4CAF50;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: white;
+        }
+        #reader {
+            width: 300px;
+            margin: auto;
+            border: 2px solid #4CAF50;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: white;
+        }
+        #result, #error {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        #result {
+            color: green;
+        }
+        #error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h2>Secure Payment QR Code Generator & Scanner</h2>
+
+    <button><a href="https://suvamgiri.github.io/image/qrcodegenerator.html" style="text-decoration: none;">To scan the qrcode </a></button>
+    <input type="text" id="eSewaID" placeholder="eSewa ID" required>
+    <input type="text" id="PayPalID" placeholder="PayPal ID" required>
+    <input type="text" id="StripeID" placeholder="Stripe ID" required>
+    <input type="text" id="Khalthi" placeholder="Khalthi" required>
+    <input type="text" id="Imepay" placeholder="Imepay" required>
+    <input type="text" id="fonepay" placeholder="Fonepay" required>
+    <button onclick="generateQRCode()">Generate Payment QR Code</button>
+    <div id="qr-code"></div>
+
+    
+    <script>
+        function generateQRCode() {
+            // Encrypt payment data (Basic encoding to prevent easy access)
+            let secret_key = "MYAPP123";
+            let paymentData = {
+                secret_code: secret_key, // Hidden key for verification
+                eSewaID: document.getElementById("eSewaID").value,
+                PayPalID: document.getElementById("PayPalID").value,
+                StripeID: document.getElementById("StripeID").value,
+                Khalthi: document.getElementById("Khalthi").value,
+                Imepay: document.getElementById("Imepay").value,
+                fonepay: document.getElementById("fonepay").value
+            };
+
+            // Convert to JSON string and encode it
+            let encodedData = btoa(JSON.stringify(paymentData)); // Base64 encoding
+
+            // Generate QR code
+            document.getElementById("qr-code").innerHTML = "";
+            new QRCode(document.getElementById("qr-code"), {
+                text: encodedData, // Store encoded data in QR
+                width: 200,
+                height: 200
+            });
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log("Scanned Result:", decodedText);
+
+            try {
+                // Decode the base64 string
+                let decodedString = atob(decodedText);
+                let paymentInfo = JSON.parse(decodedString);
+
+                // Check if secret key is correct
+                if (paymentInfo.secret_code === "MYAPP123") {
+                    let resultHTML = "<strong>✅ Secure Payment Details:</strong><br>";
+                    if (paymentInfo.eSewaID) resultHTML += "eSewa: " + paymentInfo.eSewaID + "<br>";
+                    if (paymentInfo.PayPalID) resultHTML += "PayPal: " + paymentInfo.PayPalID + "<br>";
+                    if (paymentInfo.StripeID) resultHTML += "Stripe: " + paymentInfo.StripeID + "<br>";
+                    if (paymentInfo.Khalthi) resultHTML += "Khalthi: " + paymentInfo.Khalthi + "<br>";
+                    if (paymentInfo.Imepay) resultHTML += "Imepay: " + paymentInfo.Imepay + "<br>";
+                    if (paymentInfo.fonepay) resultHTML += "Fonepay: " + paymentInfo.fonepay + "<br>";
+
+                    document.getElementById('result').innerHTML = resultHTML;
+                    document.getElementById('error').innerHTML = ""; // Clear error
+                } else {
+                    document.getElementById('result').innerHTML = "";
+                    document.getElementById('error').innerHTML = "⚠️ Invalid QR Code!";
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = "";
+                document.getElementById('error').innerHTML = "⚠️ Invalid QR Code!";
+            }
+        }
+
+        function onScanError(errorMessage) {
+            console.warn(errorMessage);
+        }
+
+        // Start QR scanner
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", {
+            fps: 10,
+            qrbox: 250
+        });
+        html5QrcodeScanner.render(onScanSuccess, onScanError);
+    </script>
+</body>
+</html>
